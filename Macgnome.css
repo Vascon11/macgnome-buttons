@@ -1,73 +1,57 @@
-/* ~/.config/gtk-4.0/gtk.css */
+/* macgnome-buttons — botões de janela estilo macOS para GNOME / GTK4
+ *
+ * Os botões são desenhados aqui, em CSS puro, sem assets externos.
+ * Por isso funcionam com qualquer tema: WhiteSur, Mojave, Adwaita
+ * ou libadwaita puro, em apps nativos e em Flatpaks.
+ *
+ * A ORDEM dos botões não vem deste arquivo. Ela vem de:
+ *   gsettings get org.gnome.desktop.wm.preferences button-layout
+ *
+ * Para mudar o tamanho, mexa só em --mac-btn-size.
+ */
+
+windowcontrols {
+  --mac-btn-size: 20px;   /* o WhiteSur usa 16px */
+  --mac-btn-gap: 5px;
+  --mac-close: #ff5f57;
+  --mac-minimize: #febc2e;
+  --mac-maximize: #28c840;
+  --mac-backdrop: #636363;
+}
 
 /* 1. Headerbar */
-headerbar, 
+headerbar,
 .titlebar {
   min-height: 34px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-/* 2. Botões */
+/* 2. Formato do botão */
 windowcontrols button {
-  box-sizing: border-box;
-  min-width: 20px;
-  min-height: 20px;
-  max-width: 20px;
-  max-height: 20px;
+  min-width: var(--mac-btn-size);
+  min-height: var(--mac-btn-size);
   padding: 0;
-  margin: 10px 5px;
+  margin: 10px var(--mac-btn-gap);
   border-radius: 100%;
   border: none;
-  box-shadow: none;
   outline: none;
+  /* Mesma transição do WhiteSur. O tema não define uma própria para os
+     botões de janela: eles herdam a curva global dele, em `button {}`.
+     Não dá para pôr isso numa variável — o GTK copia o var() cru para
+     as quatro longhands da shorthand e o valor vira inválido. */
+  transition: all 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* 3. Ícones (corrigido) */
+/* 3. Ícone: escondido, aparece no hover */
 windowcontrols button image {
   opacity: 0;
-  -gtk-icon-size: 10px; /* mantém válido */
+  -gtk-icon-size: 10px;
   color: inherit;
   -gtk-icon-style: symbolic;
+  transition: all 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* === CORES BASE === */
-windowcontrols button.close { 
-  background: #ff5f57; 
-  color: #ff5f57; 
-}
-
-windowcontrols button.minimize { 
-  background: #febc2e; 
-  color: #febc2e; 
-}
-
-windowcontrols button.maximize { 
-  background: #28c840; 
-  color: #28c840; 
-}
-
-/* === HOVER (ícones aparecem com contraste suave) === */
-
-/* CLOSE */
-windowcontrols button.close:hover {
-  background: #ff5f57;
-  color: #8b1e1e;
-}
-
-/* MINIMIZE */
-windowcontrols button.minimize:hover {
-  background: #febc2e;
-  color: #8a6a00;
-}
-
-/* MAXIMIZE */
-windowcontrols button.maximize:hover {
-  background: #28c840;
-  color: #0f5c2e;
-}
-
-/* Mostrar ícone no hover */
 windowcontrols button:hover image {
   opacity: 1;
   -gtk-icon-size: 12px;
@@ -75,8 +59,60 @@ windowcontrols button:hover image {
   min-height: 12px;
 }
 
-/* === JANELA INATIVA === */
-windowcontrols button:backdrop {
-  background: #636363 !important;
+/* === CORES BASE ===
+   O brilho no topo e a borda interna dão o volume do WhiteSur.
+   Valores baixos de propósito: o overlay branco é o que lava a cor.
+   Medido no centro do botão, isto fica mais saturado que o WhiteSur
+   original nas três cores (amarelo 92%, verde 64%, vermelho 91%). */
+windowcontrols button.close,
+windowcontrols button.minimize,
+windowcontrols button.maximize {
+  background-image: linear-gradient(to bottom, alpha(#ffffff, 0.04), alpha(#000000, 0.06));
+  box-shadow: inset 0 0 0 1px alpha(#000000, 0.14);
+}
+
+windowcontrols button.close {
+  background-color: var(--mac-close);
+  color: var(--mac-close);
+}
+
+windowcontrols button.minimize {
+  background-color: var(--mac-minimize);
+  color: var(--mac-minimize);
+}
+
+windowcontrols button.maximize {
+  background-color: var(--mac-maximize);
+  color: var(--mac-maximize);
+}
+
+/* === HOVER: o ícone aparece com contraste suave === */
+windowcontrols button.close:hover {
+  color: #8b1e1e;
+}
+
+windowcontrols button.minimize:hover {
+  color: #8a6a00;
+}
+
+windowcontrols button.maximize:hover {
+  color: #0f5c2e;
+}
+
+/* === ACTIVE: afunda um pouco === */
+windowcontrols button.close:active,
+windowcontrols button.minimize:active,
+windowcontrols button.maximize:active {
+  background-image: linear-gradient(to bottom, alpha(#000000, 0.12), alpha(#000000, 0.22));
+}
+
+/* === JANELA INATIVA ===
+   Sem !important (o GTK4 não suporta): as três classes já dão
+   especificidade suficiente para vencer as cores base. */
+windowcontrols button.close:backdrop,
+windowcontrols button.minimize:backdrop,
+windowcontrols button.maximize:backdrop {
+  background-color: var(--mac-backdrop);
+  background-image: none;
   opacity: 0.5;
 }
